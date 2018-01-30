@@ -15,9 +15,12 @@
  */
 package com.example.android.quakereport;
 
+import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -36,7 +39,25 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity {
+public class EarthquakeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<card>> {
+    @Override
+    public Loader<List<card>> onCreateLoader(int id, Bundle args) {
+        return new ErthAsyncTaskLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<card>> loader, List<card> data) {
+        //clear the adapter of previous earthquake data
+        mAdapter.clear();
+        mAdapter.addAll(data);
+
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<card>> loader) {
+
+    }
 
     public static final String LOG_TAG = EarthquakeActivity.class.getName();
     private static final String USGS_REQUEST_URL =
@@ -47,7 +68,8 @@ public class EarthquakeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
-        new ErthAsyncTask().execute(USGS_REQUEST_URL);
+
+
         // Find a reference to the {@link ListView} in the layout
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
 
@@ -60,7 +82,7 @@ public class EarthquakeActivity extends AppCompatActivity {
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
         earthquakeListView.setAdapter(mAdapter);
-
+        getLoaderManager().initLoader(0, null, this).forceLoad();
 
     }
 
@@ -78,18 +100,27 @@ public class EarthquakeActivity extends AppCompatActivity {
         });
     }
 
-    private class ErthAsyncTask extends AsyncTask<String, Void, List<card>> {
+    private static class ErthAsyncTaskLoader extends AsyncTaskLoader<List<card>> {
+
+        public ErthAsyncTaskLoader(Context context) {
+            super(context);
+        }
+
+
         @Override
-        protected List<card> doInBackground(String... strings) {
+        protected void onStartLoading() {
+            forceLoad();
+        }
 
 
-            // Don't perform the request if there are no URLs, or the first URL is null.
-            if (strings.length < 1 || strings[0] == null) {
-                return null;
-            }
-            URL jason = createUrl(strings[0]);
+        @Override
+        public List<card> loadInBackground() {
+
+            //create url
+            URL jason = createUrl(USGS_REQUEST_URL);
             // Create an empty ArrayList that we can start adding earthquakes to
             ArrayList<card> earthquakes;
+
             String JSON_RESPONSE = null;
             try {
                 JSON_RESPONSE = makeHttpRequst(jason);
@@ -100,14 +131,6 @@ public class EarthquakeActivity extends AppCompatActivity {
 
             return earthquakes
                     ;
-        }
-
-        @Override
-        protected void onPostExecute(List<card> data) {
-//clear the adapter of previous earthquake data
-            mAdapter.clear();
-
-            mAdapter.addAll(data);
         }
 
 
