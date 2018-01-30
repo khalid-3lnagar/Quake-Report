@@ -35,7 +35,6 @@ public final class QueryUtils {
      * parsing a JSON response.
      */
     public static ArrayList<Earthquake> extractEarthquakes(String JSON_URL) {
-        Log.i(LOG_TAG,"Test: on extract Earthquakes ");
         //create url
         URL jason = createUrl(JSON_URL);
         // Create an empty ArrayList that we can start adding earthquakes to

@@ -23,10 +23,10 @@ import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,6 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
         LoaderManager Lmanager = getLoaderManager();
         Lmanager.initLoader(0, null, this).forceLoad();
-        Log.i(LOG_TAG, "Test: initLoader called");
 
         // Find a reference to the {@link ListView} in the layout
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
@@ -89,14 +88,12 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
         @Override
         protected void onStartLoading() {
-            Log.i(LOG_TAG, "Test: on start the loader ");
             forceLoad();
         }
 
 
         @Override
         public List<Earthquake> loadInBackground() {
-            Log.i(LOG_TAG, "Test: on loadInBackground ");
             //get list of earthquake obj from the REQUEST_URL
             List<Earthquake> earthquakes = QueryUtils.extractEarthquakes(REQUEST_URL);
 
@@ -108,28 +105,35 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public Loader<List<Earthquake>> onCreateLoader(int id, Bundle args) {
-        Log.i(LOG_TAG, "Test: on create the loader ");
         return new ErthAsyncTaskLoader(this, USGS_REQUEST_URL);
     }
 
     @Override
     public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> data) {
-        Log.i(LOG_TAG, "Test: onLoadFinished  and updating the UI ");
         //clear the adapter of previous earthquake data
         mAdapter.clear();
         if (data != null && !data.isEmpty()) {
             mAdapter.addAll(data);
         }
+        ListView list=findViewById(R.id.list);
+      //show text says No earthquakes found if the data the list was empty
+        list.setEmptyView(EmptyViewcreator());
 
 
     }
 
     @Override
     public void onLoaderReset(Loader<List<Earthquake>> loader) {
-        Log.i(LOG_TAG, "Test: onLoaderReset ");
+
         mAdapter.clear();
     }
 
+    public View EmptyViewcreator() {
+        //this text shown if the list is empty
+        TextView tmpText=this.findViewById(R.id.emptyView);
+        tmpText.setText("No earthquakes found");
+        return tmpText;
+    }
 
 }
 
