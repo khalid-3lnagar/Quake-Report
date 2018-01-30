@@ -28,38 +28,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EarthquakeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Earthquake>> {
-    @Override
-    public Loader<List<Earthquake>> onCreateLoader(int id, Bundle args) {
-        return new ErthAsyncTaskLoader(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> data) {
-        //clear the adapter of previous earthquake data
-        mAdapter.clear();
-        mAdapter.addAll(data);
-
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<Earthquake>> loader) {
-
-    }
-
-    public static final String LOG_TAG = EarthquakeActivity.class.getName();
+    public static final String LOG_TAG = EarthquakeActivity.class.getSimpleName();
     private static final String USGS_REQUEST_URL =
             "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
     private Adapter mAdapter;
@@ -68,7 +41,11 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
+        //start loader in the background
 
+        LoaderManager Lmanager = getLoaderManager();
+        Lmanager.initLoader(0, null, this).forceLoad();
+        Log.i(LOG_TAG, "Test: initLoader called");
 
         // Find a reference to the {@link ListView} in the layout
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
@@ -82,7 +59,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
         earthquakeListView.setAdapter(mAdapter);
-        getLoaderManager().initLoader(0, null, this).forceLoad();
+
 
     }
 
@@ -101,103 +78,56 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
     }
 
     private static class ErthAsyncTaskLoader extends AsyncTaskLoader<List<Earthquake>> {
+        private String REQUEST_URL;
 
-        public ErthAsyncTaskLoader(Context context) {
+        public ErthAsyncTaskLoader(Context context, String url) {
+
             super(context);
+            REQUEST_URL = url;
         }
 
 
         @Override
         protected void onStartLoading() {
+            Log.i(LOG_TAG, "Test: on start the loader ");
             forceLoad();
         }
 
 
         @Override
         public List<Earthquake> loadInBackground() {
+            Log.i(LOG_TAG, "Test: on loadInBackground ");
+            //get list of earthquake obj from the REQUEST_URL
+            List<Earthquake> earthquakes = QueryUtils.extractEarthquakes(REQUEST_URL);
 
-            //create url
-            URL jason = createUrl(USGS_REQUEST_URL);
-            // Create an empty ArrayList that we can start adding earthquakes to
-            ArrayList<Earthquake> earthquakes;
-
-            String JSON_RESPONSE = null;
-            try {
-                JSON_RESPONSE = makeHttpRequst(jason);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            earthquakes = QueryUtils.extractEarthquakes(JSON_RESPONSE);
-
-            return earthquakes
-                    ;
+            return earthquakes;
         }
 
 
-        private URL createUrl(String stringUrl) {
-            URL url = null;
-            try {
-                url = new URL(stringUrl);
-            } catch (MalformedURLException exception) {
-                Log.e(LOG_TAG, "Error with creating URL", exception);
-                return null;
-            }
-            return url;
-        }
+    }
 
-        private String makeHttpRequst(URL url) throws IOException {
-            //if url is null return
-            if (url == null) return null;
-            String JSON_RESPONSE = "";//this is the response for making JSON object
-            HttpURLConnection urlConnection = null;
-            InputStream inputStream = null;
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setReadTimeout(10000 /* milliseconds */);
-                urlConnection.setConnectTimeout(15000 /* milliseconds */);
-                urlConnection.connect();
-                if (urlConnection.getResponseCode() == 200) {
-                    inputStream = urlConnection.getInputStream();
-                    JSON_RESPONSE = readFromStreem(inputStream);
+    @Override
+    public Loader<List<Earthquake>> onCreateLoader(int id, Bundle args) {
+        Log.i(LOG_TAG, "Test: on create the loader ");
+        return new ErthAsyncTaskLoader(this, USGS_REQUEST_URL);
+    }
 
-                    return JSON_RESPONSE;
-                } else {
-                    Log.e(LOG_TAG, "Connection Error");
-                }
-
-
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Connection Error " + e.getMessage());
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (inputStream != null) {
-                    // function must handle java.io.IOException here
-                    inputStream.close();
-                }
-            }
-            return JSON_RESPONSE;
-
-        }
-
-        private String readFromStreem(InputStream inputStream) throws IOException {
-            StringBuilder outbut = new StringBuilder();
-            if (inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-                BufferedReader reader = new BufferedReader(inputStreamReader);
-                String line = reader.readLine();
-                while (line != null) {
-                    outbut.append(line);
-                    line = reader.readLine();
-                }
-            }
-
-            return outbut.toString();
+    @Override
+    public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> data) {
+        Log.i(LOG_TAG, "Test: onLoadFinished  and updating the UI ");
+        //clear the adapter of previous earthquake data
+        mAdapter.clear();
+        if (data != null && !data.isEmpty()) {
+            mAdapter.addAll(data);
         }
 
 
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Earthquake>> loader) {
+        Log.i(LOG_TAG, "Test: onLoaderReset ");
+        mAdapter.clear();
     }
 
 
