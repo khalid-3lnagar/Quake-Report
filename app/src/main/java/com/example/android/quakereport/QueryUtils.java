@@ -6,14 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
@@ -31,15 +23,15 @@ public final class QueryUtils {
     }
 
     /**
-     * Return a list of {@link card} objects that has been built up from
+     * Return a list of {@link Earthquake} objects that has been built up from
      * parsing a JSON response.
      */
-    public static ArrayList<card> extractEarthquakes(String JSON_RESPONSE) {
+    public static ArrayList<Earthquake> extractEarthquakes(String JSON_RESPONSE) {
 
 
         // Create an empty ArrayList that we can start adding earthquakes to
-        ArrayList<card> earthquakes = new ArrayList<>();
-        card temp;
+        ArrayList<Earthquake> earthquakes = new ArrayList<>();
+        Earthquake temp;
 
 
 
@@ -55,7 +47,7 @@ public final class QueryUtils {
             for (int i = 0; i < jArray.length(); i++) {
                 JSONObject jObject = jArray.getJSONObject(i).getJSONObject("properties");
 
-                temp = new card(jObject.getDouble("mag"),//“mag” for magnitude
+                temp = new Earthquake(jObject.getDouble("mag"),//“mag” for magnitude
                         jObject.getString("place"),//“place” for location
                         jObject.getLong("time"),//“time” for time
                         jObject.getString("url"));//"url" for link

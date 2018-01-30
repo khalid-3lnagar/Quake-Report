@@ -39,14 +39,14 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<card>> {
+public class EarthquakeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Earthquake>> {
     @Override
-    public Loader<List<card>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<Earthquake>> onCreateLoader(int id, Bundle args) {
         return new ErthAsyncTaskLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<card>> loader, List<card> data) {
+    public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> data) {
         //clear the adapter of previous earthquake data
         mAdapter.clear();
         mAdapter.addAll(data);
@@ -55,7 +55,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
     }
 
     @Override
-    public void onLoaderReset(Loader<List<card>> loader) {
+    public void onLoaderReset(Loader<List<Earthquake>> loader) {
 
     }
 
@@ -77,7 +77,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
         // Create a new {@link ArrayAdapter} of earthquakes
         mAdapter = new Adapter(
-                EarthquakeActivity.this, new ArrayList<card>());
+                EarthquakeActivity.this, new ArrayList<Earthquake>());
 
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
@@ -92,15 +92,15 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                card card = (com.example.android.quakereport.card) parent.getItemAtPosition(position);
+                Earthquake earthquake = (Earthquake) parent.getItemAtPosition(position);
                 Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(card.getUrl()));
+                i.setData(Uri.parse(earthquake.getUrl()));
                 startActivity(i);
             }
         });
     }
 
-    private static class ErthAsyncTaskLoader extends AsyncTaskLoader<List<card>> {
+    private static class ErthAsyncTaskLoader extends AsyncTaskLoader<List<Earthquake>> {
 
         public ErthAsyncTaskLoader(Context context) {
             super(context);
@@ -114,12 +114,12 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
 
         @Override
-        public List<card> loadInBackground() {
+        public List<Earthquake> loadInBackground() {
 
             //create url
             URL jason = createUrl(USGS_REQUEST_URL);
             // Create an empty ArrayList that we can start adding earthquakes to
-            ArrayList<card> earthquakes;
+            ArrayList<Earthquake> earthquakes;
 
             String JSON_RESPONSE = null;
             try {

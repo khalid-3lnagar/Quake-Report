@@ -6,13 +6,13 @@ import java.util.Date;
 /**
  * Created by khali on 12/14/2017.
  */
-public class card {
+public class Earthquake {
     private double mag;
     private String[] place = new String[2];
     private long time;
     private String Url;
 
-    public card(Double mag, String place, long time, String url) {
+    public Earthquake(Double mag, String place, long time, String url) {
         this.mag = mag;
 
         this.Url = url;

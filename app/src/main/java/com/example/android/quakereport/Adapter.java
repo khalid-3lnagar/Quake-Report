@@ -11,17 +11,16 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by khali on 12/14/2017.
  */
-public class Adapter extends ArrayAdapter<card> {
+public class Adapter extends ArrayAdapter<Earthquake> {
 
     public Adapter// كونستركتر علشان تاخد البيانات بتاعة كل ايتم
     (@NonNull Context context,//
-     @NonNull List<card> objects) {
+     @NonNull List<Earthquake> objects) {
         super(context, 0, objects);
 
     }
@@ -40,7 +39,7 @@ public class Adapter extends ArrayAdapter<card> {
         }
 
 
-        final card currentcard = getItem(position);//دا الايتم اللي هنملي منه الفيو
+        final Earthquake currentcard = getItem(position);//دا الايتم اللي هنملي منه الفيو
 
 
 
