@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -76,6 +77,41 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         });
     }
 
+
+    @Override
+    public Loader<List<Earthquake>> onCreateLoader(int id, Bundle args) {
+        return new ErthAsyncTaskLoader(this, USGS_REQUEST_URL);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> data) {
+        ProgressBar progressBar = findViewById(R.id.progress);
+        progressBar.setVisibility(View.GONE);
+        //clear the adapter of previous earthquake data
+        mAdapter.clear();
+        if (data != null && !data.isEmpty()) {
+            mAdapter.addAll(data);
+        }
+        ListView list = findViewById(R.id.list);
+        //show text says No earthquakes found if the data the list was empty
+        list.setEmptyView(EmptyViewcreator());
+
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Earthquake>> loader) {
+
+        mAdapter.clear();
+    }
+
+    public View EmptyViewcreator() {
+        //this text shown if the list is empty
+        TextView tmpText = this.findViewById(R.id.emptyView);
+        tmpText.setText("No earthquakes found");
+        return tmpText;
+    }
+
     private static class ErthAsyncTaskLoader extends AsyncTaskLoader<List<Earthquake>> {
         private String REQUEST_URL;
 
@@ -101,38 +137,6 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
         }
 
 
-    }
-
-    @Override
-    public Loader<List<Earthquake>> onCreateLoader(int id, Bundle args) {
-        return new ErthAsyncTaskLoader(this, USGS_REQUEST_URL);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> data) {
-        //clear the adapter of previous earthquake data
-        mAdapter.clear();
-        if (data != null && !data.isEmpty()) {
-            mAdapter.addAll(data);
-        }
-        ListView list=findViewById(R.id.list);
-      //show text says No earthquakes found if the data the list was empty
-        list.setEmptyView(EmptyViewcreator());
-
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<Earthquake>> loader) {
-
-        mAdapter.clear();
-    }
-
-    public View EmptyViewcreator() {
-        //this text shown if the list is empty
-        TextView tmpText=this.findViewById(R.id.emptyView);
-        tmpText.setText("No earthquakes found");
-        return tmpText;
     }
 
 }

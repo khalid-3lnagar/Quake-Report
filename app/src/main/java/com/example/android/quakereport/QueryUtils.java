@@ -35,6 +35,14 @@ public final class QueryUtils {
      * parsing a JSON response.
      */
     public static ArrayList<Earthquake> extractEarthquakes(String JSON_URL) {
+
+/** this for testing the progress bar view for 2 seconds which is 2000 milliseconds
+ try {
+ Thread.sleep(2000);
+ } catch (InterruptedException e) {
+ e.printStackTrace();
+ }*/
+
         //create url
         URL jason = createUrl(JSON_URL);
         // Create an empty ArrayList that we can start adding earthquakes to
